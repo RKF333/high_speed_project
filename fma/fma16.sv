@@ -44,11 +44,10 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result);
 	
 	
 	assign Mantissa = x_frac * y_frac;
-	assign result[15] = x_sign ^ y_sign;
+	assign result[15] = x_sign ^ y_sign; // xor to handle the sign bit
 	assign result[14:10] = $signed(x_exp + y_exp + 5'b10001) + Mantissa[21];
 	assign buffer = (Mantissa[20:0] >> Mantissa[21]);
 	assign result[9:0] = buffer[19:10];
-	
 	
    // 00: rz, 01: rne, 10: rp, 11: rn   3000
  
