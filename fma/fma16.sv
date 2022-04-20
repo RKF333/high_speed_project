@@ -17,26 +17,17 @@
 module fma16 (x, y, z, mul, add, negr, negz, roundmode, result);
    
 	input logic [15:0] x, y, z;   
-	input logic 	    mul, add, negr, negz;
+	input logic  mul, add, negr, negz;
 	input logic [1:0]  roundmode;
 	
 	output logic [15:0] result;
 	
-	logic [21:0] Mantissa;
+	logic [21:0] Mantissa, buffer;
+	logic [15:0] product;
 	
-	logic x_sign;
-	logic [4:0] x_exp;
-	logic [10:0] x_frac;
-	
-	logic y_sign;
-	logic [4:0] y_exp;
-	logic [10:0] y_frac;
-	
-	logic z_sign;
-	logic [4:0] z_exp;
-	logic [10:0] z_frac;
-	
-	logic [21:0] buffer;
+	logic x_sign, y_sign, z_sign;
+	logic [4:0] x_exp, y_exp, z_sign;
+	logic [10:0] x_frac, y_frac, z_frac;
 	
 	assign x_sign = x[15];
 	assign y_sign = y[15];
@@ -50,14 +41,24 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result);
 	assign y_frac = {1'b1, y[9:0]}; // adds a 1 in the front
 	assign z_frac = {1'b1, z[9:0]}; // adds a 1 in the front
 	
-	
 	assign Mantissa = x_frac * y_frac; // Mantissa calculation
-	assign result[15] = x_sign ^ y_sign; // xor to handle the sign bit
-	assign result[14:10] = $signed(x_exp + y_exp + 5'b10001) + Mantissa[21];
+	assign product[15] = x_sign ^ y_sign; // xor to handle the sign bit
+	assign product[14:10] = $signed(x_exp + y_exp + 5'b10001) + Mantissa[21];
 	assign buffer = (Mantissa[20:0] >> Mantissa[21]); // shifting 
-	assign result[9:0] = buffer[19:10];
+	assign product[9:0] = buffer[19:10];
 	
-	//assign 
+	assign 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
