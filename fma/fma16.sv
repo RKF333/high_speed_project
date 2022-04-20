@@ -31,23 +31,36 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result);
 	logic y_sign;
 	logic [4:0] y_exp;
 	logic [10:0] y_frac;
+	
+	logic z_sign;
+	logic [4:0] z_exp;
+	logic [10:0] z_frac;
+	
 	logic [21:0] buffer;
 	
 	assign x_sign = x[15];
 	assign y_sign = y[15];
+	assign z_sign = z[15];
 	
-	assign x_exp[4:0] = x[14:10];
-	assign y_exp[4:0] = y[14:10];
+	assign x_exp = x[14:10];
+	assign y_exp = y[14:10];
+	assign z_exp = z[14:10];
    
-	assign x_frac[10:0] = {1'b1, x[9:0]};
-	assign y_frac[10:0] = {1'b1, y[9:0]};
+	assign x_frac = {1'b1, x[9:0]}; // adds a 1 in the front
+	assign y_frac = {1'b1, y[9:0]}; // adds a 1 in the front
+	assign z_frac = {1'b1, z[9:0]}; // adds a 1 in the front
 	
 	
-	assign Mantissa = x_frac * y_frac;
+	assign Mantissa = x_frac * y_frac; // Mantissa calculation
 	assign result[15] = x_sign ^ y_sign; // xor to handle the sign bit
 	assign result[14:10] = $signed(x_exp + y_exp + 5'b10001) + Mantissa[21];
-	assign buffer = (Mantissa[20:0] >> Mantissa[21]);
+	assign buffer = (Mantissa[20:0] >> Mantissa[21]); // shifting 
 	assign result[9:0] = buffer[19:10];
+	
+	//assign 
+	
+	
+	
 	
    // 00: rz, 01: rne, 10: rp, 11: rn   3000
  
