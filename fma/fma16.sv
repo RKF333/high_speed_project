@@ -21,7 +21,7 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	input logic [1:0]  roundmode;
 	
 	output logic [15:0] result;
-	output logic [31:0] debug;
+	output logic [19:0] debug;
 	
 	logic [21:0] Mantissa_multi, buffer_1;
 	logic [19:0] Mantissa_add, buffer_2;
@@ -31,7 +31,7 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	logic [4:0] x_exp, y_exp, z_exp, product_exp;
 	logic [20:0] x_frac, y_frac, z_frac, product_frac;
 	
-	logic [20:0] x_frac_buffer, z_frac_buffer;
+	logic [20:0] x_frac_buffer, y_frac_buffer, z_frac_buffer;
 	
 	
 	
@@ -43,11 +43,11 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	assign y_exp = y[14:10];
 	assign z_exp = z[14:10];
    
-	//assign x_frac = {1'b1, x[9:0]}; // adds a 1 in the front
-	//assign y_frac = {1'b1, y[9:0]}; // adds a 1 in the front
-	//assign z_frac = {1'b1, z[9:0]}; // adds a 1 in the front
+	assign x_frac_buffer = {1'b1, x[9:0]}; // adds a 1 in the front
+	assign y_frac_buffer = {1'b1, y[9:0]}; // adds a 1 in the front
+	assign z_frac_buffer = {1'b1, z[9:0]}; // adds a 1 in the front
 	
-	// multiplication section
+	// multiplication section start
 	/*
 	assign Mantissa_multi = x_frac * y_frac; // Mantissa calculation
 	assign product_sign = x_sign ^ y_sign; // xor to handle the sign bit
@@ -60,6 +60,7 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	assign result[14:10] = product_exp;
 	assign result[9:0] = product_frac;
 	
+	// multiplication section end
 	
 	// addition section
 	assign Mantissa_add = z_frac + product_frac;
@@ -67,8 +68,6 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	assign result[14:10] = $signed(z_exp + product_exp + 5'b10001) + Mantissa_add[11];
 	assign buffer_2 = (Mantissa_add[10:0] >> Mantissa_add[11]);
 	assign result[9:0] = buffer_2[10:1];
-	
-	
 	
 	assign Mantissa_add = x_frac + z_frac;
 	
@@ -78,10 +77,6 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	assign result[9:0] = buffer_2[10:1];
 	*/
 	
-	
-	
-	
-	
 	//assign result[15] = x_sign | z_sign;
 	
 	//assign Mantissa_add = (x_frac >> (x_exp + 5'b10001)) + (z_frac >> (z_exp + 5'b10001));
@@ -89,13 +84,9 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	//assign result = buffer_2;
 	//assign result[14:10] = $signed(x_exp + z_exp + 5'b10001) + Mantissa_add[11];
 	
-	
-	
-	assign x_frac_buffer = {9'b1, x[9:0]};
-	assign z_frac_buffer = {9'b1, z[9:0]};
 
-	assign x_frac = x_frac_buffer << $signed(x_exp + 5'b10001);
-	assign z_frac = z_frac_buffer << $signed(z_exp + 5'b10001);
+	assign x_frac = x_frac_buffer << $signed(x_exp - 5'b10001);
+	assign z_frac = z_frac_buffer << $signed(z_exp - 5'b10001);
 	
 	assign Mantissa_add = x_frac + z_frac;
 	
@@ -103,34 +94,17 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	
 	assign buffer_1 = Mantissa_add >> $signed(add_exp + 5'b10001);
 	
-	assign debug = Mantissa_add[19:11];
+	
+	//assign debug = Mantissa_add;
 	
 	
 	
 	
 	
-	
-	
-	//assign debug[9:0] = buffer_1[9:0];
-	//assign debug[14:10] = add_exp;
-	//assign debug[15] = x_sign | z_sign;
-	//assign debug[31:16] = 0;
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	assign debug[19:16] = 0;
+	assign debug[15] = x_sign | z_sign;
+	assign debug[14:10] = add_exp;
+	assign debug[9:0] = buffer_1[9:0];
 	
 	
 	
