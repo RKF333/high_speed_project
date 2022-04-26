@@ -33,8 +33,6 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	
 	logic [20:0] x_frac_buffer, y_frac_buffer, z_frac_buffer;
 	
-	
-	
 	assign x_sign = x[15];
 	assign y_sign = y[15];
 	assign z_sign = z[15];
@@ -47,43 +45,19 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	assign y_frac_buffer = {1'b1, y[9:0]}; // adds a 1 in the front
 	assign z_frac_buffer = {1'b1, z[9:0]}; // adds a 1 in the front
 	
-	// multiplication section start
 	/*
+	// multiplication section start
 	assign Mantissa_multi = x_frac * y_frac; // Mantissa calculation
 	assign product_sign = x_sign ^ y_sign; // xor to handle the sign bit
 	assign product_exp = $signed(x_exp + y_exp + 5'b10001) + Mantissa_multi[21];
 	assign buffer_1 = (Mantissa_multi[20:0] >> Mantissa_multi[21]); // shifting 
-	
 	assign product_frac = buffer_1[19:10];
 	
 	assign result[15] = product_sign;
 	assign result[14:10] = product_exp;
 	assign result[9:0] = product_frac;
-	
 	// multiplication section end
-	
-	// addition section
-	assign Mantissa_add = z_frac + product_frac;
-	assign result[15] = z_sign | product_sign;
-	assign result[14:10] = $signed(z_exp + product_exp + 5'b10001) + Mantissa_add[11];
-	assign buffer_2 = (Mantissa_add[10:0] >> Mantissa_add[11]);
-	assign result[9:0] = buffer_2[10:1];
-	
-	assign Mantissa_add = x_frac + z_frac;
-	
-	
-	assign result[14:10] = $signed(x_exp + z_exp + 5'b10001) + Mantissa_add[11];
-	assign buffer_2 = (Mantissa_add[10:0] >> Mantissa_add[11]);
-	assign result[9:0] = buffer_2[10:1];
 	*/
-	
-	//assign result[15] = x_sign | z_sign;
-	
-	//assign Mantissa_add = (x_frac >> (x_exp + 5'b10001)) + (z_frac >> (z_exp + 5'b10001));
-	//assign buffer_2 = (Mantissa_add[10:0] >> Mantissa_add[11]);
-	//assign result = buffer_2;
-	//assign result[14:10] = $signed(x_exp + z_exp + 5'b10001) + Mantissa_add[11];
-	
 
 	assign x_frac = x_frac_buffer << $signed(x_exp - 5'b10001);
 	assign z_frac = z_frac_buffer << $signed(z_exp - 5'b10001);
@@ -98,15 +72,11 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
 	//assign debug = Mantissa_add;
 	
 	
-	
-	
-	
 	assign debug[19:16] = 0;
 	assign debug[15] = x_sign | z_sign;
 	assign debug[14:10] = add_exp;
 	assign debug[9:0] = buffer_1[9:0];
-	
-	
+
 	
    // 00: rz, 01: rne, 10: rp, 11: rn   3000
  
