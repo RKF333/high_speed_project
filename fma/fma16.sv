@@ -14,14 +14,14 @@
 //   fnmadd: mul = 1, add = 1, negr = 1, negz = 0
 //   fnmsub: mul = 1, add = 1, negr = 1, negz = 1
 
-module fma16 (x, y, z, mul, add, negr, negz, roundmode, result);
+module fma16 (x, y, z, mul, add, negr, negz, roundmode, result, debug);
    
 	input logic [15:0] x, y, z;   
 	input logic mul, add, negr, negz;
 	input logic [1:0]  roundmode;
 	
 	output logic [15:0] result;
-	//output logic [15:0] debug;
+	output logic [31:0] debug;
 	
 	logic [21:0] Mantissa_add, Mantissa_multi, buffer_1, buffer_2, buffer_3;
 	logic [4:0]  add_exp;
@@ -67,27 +67,27 @@ module fma16 (x, y, z, mul, add, negr, negz, roundmode, result);
 	
 	
 	
-	assign buffer_2 = (x_exp > z_exp) ? $signed(((-1) ** x_sign) * x_frac + frac_buffer): $signed(((-1) ** z_sign) * z_frac + frac_buffer);
-	//assign buffer_2 = $signed(((-1) ** x_sign) * x_frac + frac_buffer);
+	//assign buffer_2 = (x_exp > z_exp) ? $signed(((-1) ** x_sign) * x_frac + frac_buffer): $signed(((-1) ** z_sign) * z_frac + frac_buffer);
+	assign buffer_2 = (x_sign ^ z_sign) ? (x_exp > z_exp) ?  $signed(z_frac - frac_buffer): $signed(x_frac - frac_buffer): (x_exp > z_exp) ? x_frac + frac_buffer: z_frac + frac_buffer;
+	
+	assign Mantissa_add = (x_sign ^ z_sign) ? (buffer_2[20:0] << buffer_2[21:11]): buffer_2[20:0] >> buffer_2[21:11];
+	
+	//assign add_exp = (x_exp > z_exp) ? x_exp + (buffer_2[11] * ((-1) ** x_sign)): z_exp + (buffer_2[11] * ((-1) ** z_sign));
+	assign add_exp = (x_sign ^ z_sign) ? (x_exp > z_exp) ? x_exp - buffer_2[11]: z_exp - buffer_2[11]: (x_exp > z_exp) ? x_exp + buffer_2[11]: z_exp + buffer_2[11];
+	//assign add_exp = (x_exp > z_exp) ? x_exp - Mantissa_add[10]: z_exp - Mantissa_add[10];
 	
 	
-	assign Mantissa_add = (buffer_2[20:0] >> buffer_2[21:11]);
-	//assign Mantissa_add = (x_sign ^ z_sign) ? buffer_2[20:0] >> buffer_2[21:11]: buffer_2[20:0] << buffer_2[21:11];
-	
-	
-	assign add_exp = (x_exp > z_exp) ? x_exp + buffer_2[11] * ((-1) ** x_sign): z_exp + buffer_2[11] * ((-1) ** z_sign);
-	//assign add_exp = x_exp + buffer_2[11];
-	
-	
-	
-	
-	//assign result = Mantissa_add;
 
 	
-	//assign result[15] = x_sign | z_sign;
-	assign result[15] = 0;
-	assign result[14:10] = add_exp;
-	assign result[9:0] = Mantissa_add[9:0];
+	
+	
+	//assign debug = z_frac + frac_buffer;
+
+	
+	//assign debug[15] = x_sign | z_sign;
+	assign debug[31:15] = 0;
+	assign debug[14:10] = add_exp;
+	assign debug[9:0] = Mantissa_add[9:0];
 	
 	
 	
